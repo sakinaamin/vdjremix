@@ -1,0 +1,45 @@
+Package: vdjremix
+Title: Repertoire Module Identification and eXploration
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Sakina", "Amin", email = "sakina.amin@sjc.ox.ac.uk", role = c("aut", "cre")),
+    person("Lauren", "Overend", email = "lauren_overend@live.co.uk", role = c("aut", "cre")),
+    person("Rachael", "Bashford-Rogers", email = "rachael.bashford-rogers@bioch.ox.ac.uk", role = c("aut", "cre")),
+    person("Felicia", "Tucci", role = "aut"),
+    person("Bo", "Sun", role = "aut"),
+    person("Justin", "Whalley", role = "aut"),
+    person("Michael", "Dustin", role = "aut"),
+    person("Julian", "Knight", role = "aut")
+    )
+Description: A comprehensive toolkit for B-cell and T-cell Repertoire Module 
+    Identification and eXploration (VDJ-REMIX). This package provides 
+    bioinformatics workflows for processing AIRR-seq data, identifying 
+    co-expression or structural modules within repertoires, and exploring 
+    their clinical and biological relevance.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
+Imports:
+    stats,
+    grDevices,
+    ggplot2,
+    dplyr,
+    reshape2,
+    missForest,
+    missMDA,
+    VIM,
+    dynamicTreeCut,
+    fastcluster,
+    dendextend,
+    foreach,
+    doParallel,
+    pheatmap,
+    WGCNA
+Suggests:
+    knitr,
+    rmarkdown
+Depends: 
+    R (>= 3.5)
+LazyData: true

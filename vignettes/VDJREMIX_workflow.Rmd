@@ -1,0 +1,171 @@
+---
+title: "VDJ-REMIX: Interpretable modular analysis of AIRR-seq feature matrices"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{VDJ-REMIX workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+# Load the library and set a seed for reproducibility
+library(vdjremix)
+set.seed(1)
+```
+
+## Introduction
+
+High-throughput adaptive immune receptor repertoire sequencing (AIRR-seq) enables detailed characterisation of B cell and T cell populations. However, it typically yields high-dimensional feature matrices with:
+
+-   Heterogeneous data types\
+-   Strong collinearity\
+-   Substantial missingness
+
+These properties violate assumptions of many standard dimensionality reduction approaches. **VDJ-REMIX** provides a robust, interpretable framework for modular analysis of these matrices, focusing on repertoire-level summary features rather than individual sequences.
+
+## Step 0: Feature preprocessing
+
+Prior to imputation and correlation analysis, repertoire features are filtered to remove metrics with excessive missingness or insufficient variability. This reduces noise, limits spurious correlations, and ensures that downstream module discovery is driven by informative features.
+
+By default, VDJ-REMIX removes features with more than 40% missing values or fewer than a minimum number of unique observations.
+
+```{r}
+data(example_airr_features)
+dim(example_airr_features)
+example_airr_features <- preprocess_features(
+  example_airr_features,
+  missingness_threshold = 0.4,
+  min_unique_values = 8
+)
+
+```
+
+## 1. Input Data
+
+VDJ-REMIX expects a numeric feature matrix with samples as rows and repertoire features as columns.
+
+```{r}
+dim(example_airr_features)
+```
+
+## 2. Inspecting Missingness
+
+Before analysis, we visualize the extent and pattern of missing data.
+
+```{r}
+miss_plots <- plot_missingness(example_airr_features)
+miss_plots$feature_missingness
+miss_plots$missingness_heatmap
+```
+
+## 3. Imputation Benchmarking
+
+We test different imputation methods to see which one handles the specific missingness patterns of this dataset best.
+
+```{r}
+bench <- benchmark_imputation(
+  feature_matrix = example_airr_features,
+  na_frequencies = c(0.1, 0.2, 0.3),
+  seed_strategy = "feature"
+)
+```
+
+```{r}
+# Visualize benchmark results
+imp_plots <- plot_imputation_benchmark(bench)
+imp_plots$rmse_by_method
+```
+
+```{r}
+# Select the best method automatically
+selection <- select_imputation_method(bench)
+selection$best_method
+```
+
+## 4. Feature Filtering & Imputation
+
+We filter out features that cannot be imputed reliably (high error) and then fill the remaining gaps.
+
+```{r}
+filtered <- filter_features_by_imputation_error(
+  feature_matrix = example_airr_features,
+  benchmark_results = bench,
+  method = selection$best_method,
+  rmse_threshold = 0.5
+)
+
+mat_imputed <- impute_features(
+  feature_matrix = filtered$filtered_matrix,
+  method = selection$best_method
+)
+```
+
+## 5. Robust Correlation Estimation
+
+Rather than a standard correlation, we use a subsampling approach to ensure the relationships between features are stable.
+
+```{r}
+depth <- get_subsample_depth(mat_imputed)
+
+cor_mat <- robust_correlation(
+  feature_matrix = mat_imputed,
+  subsample_depth = depth,
+  n_repeats = 500,
+  n_cores = 1
+)
+```
+
+```{r}
+# Plot the correlation matrix
+cor_plots <- plot_correlation_matrix(cor_mat)
+cor_plots$correlation_heatmap
+```
+
+## 6. Feature Clustering
+
+We identify modules of features that behave similarly across samples.
+
+```{r}
+clusters <- identify_modules(
+  correlation_matrix = cor_mat,
+  min_cluster_size = 5
+)
+
+plot_feature_dendrogram(
+  correlation_matrix = cor_mat,
+  module_assignment = clusters$assignment,
+  linkage_method = clusters$linkage$best_method
+)
+```
+
+## 7. Module Summarisation (Eigengenes)
+
+Each module is collapsed into a single eigengene representing its dominant signal.
+
+```{r}
+eig <- compute_eigengenes(
+  scaled_matrix = scale(mat_imputed),
+  modules = clusters$modules
+)
+
+plot_variance_explained(eig$variance_explained)
+```
+
+## Running the Full Pipeline
+
+If you prefer to run everything in a single command, use the wrapper function:
+
+```{r}
+res <- run_vdjremix(
+  feature_matrix = example_airr_features,
+  na_frequencies = c(0.1, 0.2),
+  n_repeats = 500,
+  n_cores = 1
+)
+```
+
+## Session Information
+
+```{r}
+sessionInfo()
+```
