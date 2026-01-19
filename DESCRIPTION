@@ -3,8 +3,8 @@ Title: Repertoire Module Identification and eXploration
 Version: 0.0.0.9000
 Authors@R: c(
     person("Sakina", "Amin", email = "sakina.amin@sjc.ox.ac.uk", role = c("aut", "cre")),
-    person("Lauren", "Overend", email = "lauren_overend@live.co.uk", role = c("aut", "cre")),
-    person("Rachael", "Bashford-Rogers", email = "rachael.bashford-rogers@bioch.ox.ac.uk", role = c("aut", "cre")),
+    person("Lauren", "Overend", role = "aut"),
+    person("Rachael", "Bashford-Rogers", role = "aut"),
     person("Felicia", "Tucci", role = "aut"),
     person("Bo", "Sun", role = "aut"),
     person("Justin", "Whalley", role = "aut"),

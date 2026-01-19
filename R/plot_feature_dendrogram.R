@@ -12,6 +12,8 @@
 #'
 #' @export
 #' @importFrom stats as.dendrogram
+#' @importFrom WGCNA labels2colors
+
 
 plot_feature_dendrogram <- function(
     correlation_matrix,
@@ -44,7 +46,7 @@ plot_feature_dendrogram <- function(
   cluster_vec[is.na(cluster_vec)] <- 0
 
   # Convert to colors
-  cluster_colors <- dendextend::labels2colors(cluster_vec)
+  cluster_colors <- WGCNA::labels2colors(cluster_vec)
 
   # Plot dendrogram with colored labels
   dend <- dendextend::set(dend, "labels_col", cluster_colors)
