@@ -38,6 +38,7 @@ Imports:
     pheatmap,
     WGCNA,
     GO.db
+biocViews:
 Suggests:
     knitr,
     rmarkdown
