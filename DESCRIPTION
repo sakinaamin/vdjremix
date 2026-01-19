@@ -36,10 +36,13 @@ Imports:
     foreach,
     doParallel,
     pheatmap,
-    WGCNA
+    WGCNA,
+    GO.db
 Suggests:
     knitr,
     rmarkdown
 Depends: 
     R (>= 3.5)
 LazyData: true
+Remotes: 
+    bioc::GO.db
